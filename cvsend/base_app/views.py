@@ -4,24 +4,17 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from base_app import forms
 from django.core.files.storage import default_storage
-from django.core import validators
+
 # Imports for sending mails
 import smtplib
 import time
-# from datetime import datetime
-# import sys
 import pandas
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-# Mail send function:
-# def send_mail(MY_MAIL,PASSWORD,PASSED_SUBJECT, PASSED_BODY, FILE_NAME, RESUME_NAME):
-
 def index(request):
-    # to get output file,
-    # sys.stdout = open(f'applied_jobs/applied jobs {datetime.now()}.txt', 'wt')
 
     # below we have mentioned the variable form which will be used to display form
     form= forms.mail_datas
@@ -39,19 +32,32 @@ def index(request):
             file_name = default_storage.save(file.name, file)
             file = request.FILES['resume_file']
             resume_name = default_storage.save(file.name, file)
-            # send_mail(MY_MAIL=form.cleaned_data['email'],
-            #           PASSWORD= form.cleaned_data['token'],
-            #           PASSED_SUBJECT = form.cleaned_data['subject'],
-            #           PASSED_BODY=form.cleaned_data["message"],
-            #           FILE_NAME=file_name,
-            #           RESUME_NAME=resume_name)
+
             data = pandas.read_excel(f"media/{file_name}")
             dicted_data = data.to_dict()
-            MAIL_LENGTH = len(dicted_data["email"])
+            # Raising error if file not contain expected keyword
+            try:
+                MAIL_LENGTH = len(dicted_data["email"])
+            except:
+                return JsonResponse(
+                    {'message': 'KeyError',
+                     'explanation': 'Mail send failed as there is no cell found in 1st row contain key email in uploaded excel sheet.'},
+                    status='400')
+
             print(f"Have fed with {MAIL_LENGTH} mail addresses")
+
             for n in range(0, MAIL_LENGTH):
+
                 TO_EMAIL = dicted_data['email'][n]
-                DESIGNATION = dicted_data['designation'][n]
+
+                # Raising error if file not contain expected keyword
+                try:
+                    DESIGNATION = dicted_data['designation'][n]
+                except:
+                    return JsonResponse(
+                        {'message': 'KeyError',
+                         'explanation': 'Mail send failed as there is no cell found in 1st row contain key designation in uploaded excel sheet.'}, status='400')
+
                 SUBJECT = form.cleaned_data['subject'].replace("<DESIG>", DESIGNATION)
                 BODY = form.cleaned_data["message"].replace("<DESIG>", DESIGNATION)
                 msg = MIMEMultipart()
@@ -71,12 +77,14 @@ def index(request):
                 encoders.encode_base64(payload)
                 # add header with pdf name
                 payload.add_header('Content-Decomposition', 'attachment', filename=pdfname)
+                # Raising error if error while attaching file to mail
                 try:
                     msg.attach(payload)
                 except:
                     return JsonResponse(
                         {'message': 'Login Error', 'explanation': 'Failed to attach resume with mail, refresh page and try again.'},status='400')
                 session = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+                # Error raising for incorrect email/token fed
                 try:
                     session.login(MY_MAIL, PASSWORD)
                 except:
@@ -87,6 +95,7 @@ def index(request):
                 time.sleep((15))
 
                 print(f"Mail send success To {TO_EMAIL} applying for {DESIGNATION}.")
+
             try:
                 files = glob.glob(os.path.join('media/*'))
                 for f in files:
@@ -99,11 +108,9 @@ def index(request):
         return render(request, "result.html", {"err_data":err_data,
                                                "total_mail_send":MAIL_LENGTH})
 
-    # else:
-    #     return JsonResponse({'message': 'Feeded Invalid Datas,', 'explanation': 'Kindly check the details provided'}, status='400')
+    # render for first login to page
     return render(request, "index.html", {"form":form})
 
 # By this page we get to know how to use this web
 def docs(request):
     return render(request, "documentation.html")
-
