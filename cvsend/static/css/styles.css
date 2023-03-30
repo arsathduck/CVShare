@@ -11,6 +11,13 @@ html {
   scroll-behavior: smooth;
 }
 
+body div h3 a{
+    color:black;
+}
+body div h3 a:hover{
+    color:green;
+}
+
 #i_container{
 position:relative;
 margin: 15px 0px 0px 0px;
