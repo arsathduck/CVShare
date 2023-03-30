@@ -26,9 +26,9 @@ MEDIA_DIR = os.path.join(BASE_DIR, "media")
 SECRET_KEY = 'django-insecure-+bcmw!ir#0)c=0i71r-#x@0a20umh!a!$c&)sg&(0z(c0#4k%n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['fressistant.pythonanywhere.com']
 
 
 # Application definition
