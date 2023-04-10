@@ -3,7 +3,7 @@ background: radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 
 background-size: cover;
 }
 
-body.home{background: radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%) center center;}
+body.home{background: #7FB5B1;}
 body.documentation{background:#EFEAEA;}
 body.result{background: black;}
 
@@ -12,10 +12,11 @@ html {
 }
 
 body div h3 a{
-    color:black;
+    color : black ;
 }
 body div h3 a:hover{
-    color:green;
+    color: #EFEAEA;
+    text-decoration: none;
 }
 
 #i_container{
@@ -55,4 +56,12 @@ margin-top: 3rem;
   align-items: right;
   align-content: center;
   color:black;
+}
+
+#btn_submit {
+    color: black;
+    border-color: black;
+}
+#btn_submit:hover {
+    border-color: white;
 }
